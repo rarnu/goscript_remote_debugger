@@ -1,0 +1,11 @@
+package global
+
+const (
+	ERR_NONE, ERR_NONE_MESSAGE                 = 0, ""
+	ERR_NO_TOKEN, ERR_NO_TOKEN_MESSAGE         = 1, "没有提供会话 Token"
+	ERR_NO_FREE_PORT, ERR_NO_FREE_PORT_MESSAGE = 2, "没有空闲的调试端口"
+	ERR_INIT_FAILED, ERR_INIT_FAILED_MESSAGE   = 3, "初始化远程调试器失败"
+
+	ERR_NO_DEBUG_SESSION, ERR_NO_DEBUG_SESSION_MESSAGE   = 4, "没有相应的调试会话"
+	ERR_EXIT_DEBUG_CLIENT, ERR_EXIT_DEBUG_CLIENT_MESSAGE = 5, "退出调试客户端失败"
+)
