@@ -2,19 +2,20 @@ package route
 
 import (
 	"debugger/global"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
-type ReqExitDebug struct {
+type ReqContinue struct {
 	DebugToken string `json:"debugToken"`
 }
 
-type RespExitDebug struct {
-	Exited bool `json:"exited"` // 是否成功退出
+type RespContinue struct {
+	Reason string `json:"reason"`
 }
 
-func ApiExitDebug(_ *gin.Context, req ReqExitDebug) (code int, message string, data RespExitDebug) {
-	resp := RespExitDebug{Exited: false}
+func ApiContinue(_ *gin.Context, req ReqContinue) (code int, message string, data RespContinue) {
+	resp := RespContinue{}
 	if req.DebugToken == "" {
 		// 没有传 token，直接退出
 		return global.ERR_NO_TOKEN, global.ERR_NO_TOKEN_MESSAGE, resp
@@ -25,22 +26,19 @@ func ApiExitDebug(_ *gin.Context, req ReqExitDebug) (code int, message string, d
 		return global.ERR_NO_DEBUG_SESSION, global.ERR_NO_DEBUG_SESSION_MESSAGE, resp
 	}
 	if global.GlobalSessionPool.IsClosed(req.DebugToken) {
-		// 如果已经关闭了（是调试到终点后关闭）
-		if global.GlobalSessionPool.Exists(req.DebugToken) {
-			// 从池子里移除调试会话
-			global.GlobalSessionPool.Remove(req.DebugToken)
-			resp.Exited = true
-			return 0, "", resp
-		}
-		// 如果已经移除过了，抛个异常
 		return global.ERR_DEBUG_IS_FINISHED, global.ERR_DEBUG_IS_FINISHED_MESSAGE, resp
 	}
-	// 如果还没有关闭（在调试中需要强制关闭）
 	ch := global.GlobalSessionPool.GetCmdChan(req.DebugToken)
+	oc := global.GlobalSessionPool.GetOutChan(req.DebugToken)
 	ch <- global.DebugCommand{
-		Cmd: "exit",
+		Cmd: "c",
 	}
-	global.GlobalSessionPool.Remove(req.DebugToken)
-	resp.Exited = true
+	rs := <-oc
+	if s, ok := rs.(string); ok {
+		if s == "finished" {
+			return global.ERR_LAST_LINE, global.ERR_LAST_LINE_MESSAGE, resp
+		}
+	}
+	resp.Reason = fmt.Sprintf("%v", rs)
 	return 0, "", resp
 }
