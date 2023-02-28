@@ -5,12 +5,9 @@ go 1.20
 require (
 	github.com/evanw/esbuild v0.17.10
 	github.com/gin-gonic/gin v1.8.1
-	github.com/google/go-dap v0.7.0
 	github.com/isyscore/isc-gobase v1.5.1
-	github.com/rarnu/goscript v1.2.0
+	github.com/rarnu/goscript v1.2.1
 )
-
-replace github.com/rarnu/goscript => /Users/rarnu/Code/github/goscript
 
 require (
 	gitee.com/chunanyong/dm v1.8.10 // indirect
